@@ -70,7 +70,8 @@ const openTabLists = async (type = 0) => {
 };
 
 const openOptionsPage = async () => {
-  window.open(browser.runtime.getURL('index.html#/view/options'))
+  /*MV3: service worker 无 window.open, 改用 tabs.create*/
+  await browser.tabs.create({url: browser.runtime.getURL('index.html#/view/options')})
 };
 
 /*3 store*/
@@ -205,7 +206,7 @@ const viewFolderInNewWindow = async folder => {
 
 const historyTabs = async () => {
 
-  await browser.browserAction.setPopup({popup: 'index.html#/history'})
+  await browser.action.setPopup({popup: 'index.html#/history'})
   
   // return res.data;
 }

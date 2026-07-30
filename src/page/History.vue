@@ -8,7 +8,7 @@
             <div style="max-height: 500px;">
                 <div v-for="item in historyItems" :key="item.id" class="item" @click="open(item.url)" >
                     <div class="htitle">
-                        <img :src="'chrome://favicon/size/16@2x/'+item.url" class="icon">
+                        <img :src="faviconUrl(item.url)" class="icon">
                         {{item.title}}
                     </div>
                     <div class="url">
@@ -44,6 +44,8 @@
         },
         methods: {
             __,
+            /*MV3: chrome://favicon 已移除, 改用 _favicon API*/
+            faviconUrl: url => utils.getFaviconUrl(url, 32),
             async init() {
 
                 let dataT = await storage.getUOptions('historyTime')

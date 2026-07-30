@@ -5,19 +5,23 @@ import _ from 'lodash'
 import __ from './common/util/i18n'
 import browser from 'webextension-polyfill'
 
-if (DEBUG) import(
-  /* webpackChunkName: "autoreload", webpackMode: "lazy" */
-  './common/util/autoreload'
-  ).then(({autoreload}) => autoreload());
+/*MV3: autoreload 依赖的 getPackageDirectoryEntry 与 webpack 动态加载(依赖 window/document)
+在 service worker 中均不可用, 已移除; 开发时请在 chrome://extensions 手动重新加载*/
 
 // if (PRODUCTION) import(
 //   /* webpackChunkName: "tracker", webpackMode: "lazy" */
 //   '@/common/util/tracker'
 //   ).then(({tracker}) => tracker());
 
+/*service worker 无 window 对象, 用模块级变量保存运行时状态*/
+let currentBrowserAction;
+let browswerActionClickedHandler;
+let contextMenusClickedHandler;
+let updateVersion;
+
 if (DEBUG) {
-  window.tabs = tabs;
-  window.browser = browser
+  globalThis.tabs = tabs;
+  globalThis.browser = browser
 }
 
 /*插件icon鼠标点击后弹出页面,获取页面的操作对应的callback*/
@@ -35,16 +39,16 @@ const getBrowserActionHandler = action => {
 
 /*更新插件icon鼠标点击事件*/
 const updateBrowserAction = (action, tmp = false) => {
-  if (!tmp) window.currentBrowserAction = action;
+  if (!tmp) currentBrowserAction = action;
   const items = _.find(options.optionsList, {name: 'browserAction'}).items;
   const label = _.find(items, {value: action}).label;
-  browser.browserAction.setTitle({title: label}); 
+  browser.action.setTitle({title: label}); 
   if (action === 'menu_show_history_in_this_windows'){ //提前初始化，否则会出现第一次点击无效
-    browser.browserAction.setPopup({popup: 'index.html#/history'});
+    browser.action.setPopup({popup: 'index.html#/history'});
   } else {
-    browser.browserAction.setPopup({popup: ''});
+    browser.action.setPopup({popup: ''});
   }
-  window.browswerActionClickedHandler = getBrowserActionHandler(action);
+  browswerActionClickedHandler = getBrowserActionHandler(action);
 };
 
 /*设置右键菜单*/
@@ -53,7 +57,8 @@ const updateBrowserAction = (action, tmp = false) => {
 todo*/
 const setupContextMenus = async () => {
   await browser.contextMenus.removeAll();
-  const contexts = [browser.contextMenus.ContextType.BROWSER_ACTION];
+  /*MV3: BROWSER_ACTION 上下文改名为 ACTION*/
+  const contexts = [browser.contextMenus.ContextType.ACTION];
   contexts.push(browser.contextMenus.ContextType.PAGE);
   const menus = {
     show_list: tabs.openTabLists,
@@ -83,7 +88,7 @@ const setupContextMenus = async () => {
   createMenus(menus);
   /*get：根据路径查找元素*/
   /*menuItemId: == id:key*/
-  window.contextMenusClickedHandler = info => _.get(menus, info.menuItemId)()
+  contextMenusClickedHandler = info => _.get(menus, info.menuItemId)()
 };
 
 /*动态设置右键菜单,会计算tab的具体数量*/
@@ -106,9 +111,9 @@ const dynamicDisableMenu = async () => {
 
 /*设置icon右键菜单
 * 设置右键菜单
-* 设置各种监听*/
+* 初始化配置 (service worker 每次唤醒都会重新执行, 恢复运行时状态)*/
 const init = async () => {
-  const opts = window.opts = await storage.getOptions() || {};
+  const opts = await storage.getOptions() || {};
   /*合并obj;同属性取第一个参数的属性值*/
   _.defaults(opts, options.getDefaultOptions());
   await storage.setOptions(opts);
@@ -116,69 +121,74 @@ const init = async () => {
   updateBrowserAction(opts.browserAction);
 
   /*初始化右键菜单*/
-  setupContextMenus();
-
-  browser.runtime.onMessage.addListener(async msg => {
-    if (msg.optionsChanged) {
-      const changes = msg.optionsChanged;
-      Object.assign(opts, changes);
-      if (changes.browserAction) updateBrowserAction(changes.browserAction);
-      await browser.runtime.sendMessage({optionsChangeHandledStatus: 'success'});
-      if (PRODUCTION) Object.keys(changes).map(key => ga('send', 'event', 'Options', key + ':' + changes[key]))
-    }
-  });
-
-  /*监听更新*/
-  browser.runtime.onUpdateAvailable.addListener(detail => {
-    window.update = detail.version
-  });
-
-  /*监听安装*/
-  browser.runtime.onInstalled.addListener(detail => {
-    if (detail.reason === chrome.runtime.OnInstalledReason.UPDATE) {
-      tabs.openTheFirstSidePage()
-    }
-  });
-  /*监听点击icon事件*/
-  browser.browserAction.onClicked.addListener(action => window.browswerActionClickedHandler(action));
-
-  /*监听右键菜单*/
-  browser.contextMenus.onClicked.addListener(info => {
-    window.contextMenusClickedHandler(info)
-  });
-
-  /*动态更新当前的tab*/
-  browser.tabs.onCreated.addListener(_.debounce(tab => {
-    let activeInfo = {"tabId": tab.id, "windowId": tab.windowId};
-    dynamicDisableMenu(activeInfo)
-  }, 200));
-  browser.tabs.onActivated.addListener(_.debounce(activeInfo => {
-    dynamicDisableMenu(activeInfo)
-  }, 200));
-  browser.tabs.onMoved.addListener(_.debounce(activeInfo => {
-    dynamicDisableMenu(activeInfo)
-  }, 200));
-
-  /*快捷键监听*/
-  browser.commands.onCommand.addListener(async command => {
-    if (command === 'menu_show_list') tabs.openTabLists();
-    else if (command === 'menu_store_left_tabs') tabs.storeLeftTabs();
-    else if (command === 'menu_store_right_tabs') tabs.storeRightTabs();
-    else if (command === 'menu_store_selected_tabs') tabs.storeSelectedTabs();
-    else if (command === 'menu_store_twoside_tabs') tabs.storeTwoSideTabs();
-    else if (command === 'menu_store_all_tabs') tabs.storeAllTabs();
-    else if (command === 'menu_store_all_in_all_windows') tabs.storeAllTabInAllWindows();
-
-    if (PRODUCTION) ga('send', 'event', 'Command', 'used', command)
-  })
+  await setupContextMenus();
+  return opts
 };
 
-init();
+/*MV3: 监听器必须在首轮同步代码中注册, 否则 service worker 被事件唤醒时会丢事件;
+回调内等待 initPromise 保证状态已恢复*/
+const initPromise = init();
+
+browser.runtime.onMessage.addListener(async msg => {
+  if (msg.optionsChanged) {
+    const opts = await initPromise;
+    const changes = msg.optionsChanged;
+    Object.assign(opts, changes);
+    if (changes.browserAction) updateBrowserAction(changes.browserAction);
+    await browser.runtime.sendMessage({optionsChangeHandledStatus: 'success'});
+  }
+});
+
+/*监听更新*/
+browser.runtime.onUpdateAvailable.addListener(detail => {
+  updateVersion = detail.version
+});
+
+/*监听安装*/
+browser.runtime.onInstalled.addListener(detail => {
+  if (detail.reason === chrome.runtime.OnInstalledReason.UPDATE) {
+    tabs.openTheFirstSidePage()
+  }
+});
+/*监听点击icon事件*/
+browser.action.onClicked.addListener(async action => {
+  await initPromise;
+  browswerActionClickedHandler(action)
+});
+
+/*监听右键菜单*/
+browser.contextMenus.onClicked.addListener(async info => {
+  await initPromise;
+  contextMenusClickedHandler(info)
+});
+
+/*动态更新当前的tab*/
+browser.tabs.onCreated.addListener(_.debounce(tab => {
+  let activeInfo = {"tabId": tab.id, "windowId": tab.windowId};
+  dynamicDisableMenu(activeInfo)
+}, 200));
+browser.tabs.onActivated.addListener(_.debounce(activeInfo => {
+  dynamicDisableMenu(activeInfo)
+}, 200));
+browser.tabs.onMoved.addListener(_.debounce(activeInfo => {
+  dynamicDisableMenu(activeInfo)
+}, 200));
+
+/*快捷键监听*/
+browser.commands.onCommand.addListener(async command => {
+  if (command === 'menu_show_list') tabs.openTabLists();
+  else if (command === 'menu_store_left_tabs') tabs.storeLeftTabs();
+  else if (command === 'menu_store_right_tabs') tabs.storeRightTabs();
+  else if (command === 'menu_store_selected_tabs') tabs.storeSelectedTabs();
+  else if (command === 'menu_store_twoside_tabs') tabs.storeTwoSideTabs();
+  else if (command === 'menu_store_all_tabs') tabs.storeAllTabs();
+  else if (command === 'menu_store_all_in_all_windows') tabs.storeAllTabInAllWindows();
+});
 
 browser.omnibox.onInputEntered.addListener(
   function(text) {
     // Encode user input for special characters , / ? : @ & = + $ #
     var newURL = browser.runtime.getURL(`index.html#/view/home?search=${encodeURIComponent(text)}`);
-    // const createdTab = browser.tabs.create({ url: newURL });
-    window.open(newURL);
+    /*service worker 无 window.open, 改用 tabs.create*/
+    browser.tabs.create({ url: newURL });
   });

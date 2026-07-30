@@ -1,5 +1,6 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
+  "minimum_chrome_version": "104",
   "name": "__MSG_ext_name__",
   "version": "1.5.22.214",
   "default_locale": "zh_CN",
@@ -11,10 +12,7 @@
     "128": "assets/icons/icon_128.png"
   },
   "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": false
+    "service_worker": "background.js"
   },
   "commands": {
     "menu_show_list": {
@@ -50,11 +48,11 @@
       "global": true
     }
   },
-  "browser_action": {
+  "action": {
   },
   "omnibox": { "keyword" : "th" },
   "permissions": [
-    "chrome://favicon/*",
+    "favicon",
     "bookmarks",
     "contextMenus",
     "storage",
@@ -64,10 +62,8 @@
   ],
   "homepage_url": "https://yinbe.github.io/TabHome",
   "offline_enabled": true,
-  "options_page": "index.html#/view/options",
   "options_ui": {
     "page": "index.html#/view/options",
     "open_in_tab": true
-  },
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://www.google-analytics.com; object-src 'self'"
+  }
 }

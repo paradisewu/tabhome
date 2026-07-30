@@ -36,6 +36,11 @@ const getDomain = url => {
   return isChromeUrl(url) ? '' : getUrlDomain(url);
 }
 
+/*MV3: chrome://favicon 已移除, 改用 _favicon API (需 manifest "favicon" 权限); size 为像素宽度*/
+const getFaviconUrl = (url, size = 32) => {
+  return chrome.runtime.getURL('/_favicon/') + `?pageUrl=${encodeURIComponent(url)}&size=${size}`;
+}
+
 let fDomain = ["com","net","gov","org","ac","edu","co","biz","info"]
 const getMainDomain = domain => {
   let isSubDomain = fDomain.filter((demo)=>{
@@ -62,5 +67,6 @@ export default {
   getDomain,
   getMainDomain,
   getUrlDomain,
+  getFaviconUrl,
   isFF
 }

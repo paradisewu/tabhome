@@ -48,7 +48,7 @@
                 <el-col :span="6" v-for="(tab, tabIndex) in folder.children" :key="tabIndex">
                   <div class="link">
                     <div class="link-title" @click.prevent="openBookmark(tab.url,tab.id)">
-                      <img :src="'chrome://favicon/size/16@2x/'+tab.url">
+                      <img :src="faviconUrl(tab.url)">
                       <a :href="tab.url" target="_blank">{{tab.title}}</a>
                     </div>
                     <i class="el-icon-close" @click="removeBookmark(tab.id)"></i>
@@ -66,6 +66,7 @@
 <script>
   import draggable from 'vuedraggable'
   import storage from "@/common/onetab/storage";
+  import utils from "@/common/util/utils";
   import __ from "@/common/util/i18n";
   import _ from 'lodash';
   import tabs from "@/common/onetab/tabs";
@@ -103,6 +104,8 @@
     },
     methods: {
       __,
+      /*MV3: chrome://favicon 已移除, 改用 _favicon API*/
+      faviconUrl: url => utils.getFaviconUrl(url, 32),
       inputValue(){
         console.log("inputValue")
         if (!this.input) {
@@ -164,7 +167,7 @@
             this.searchIcon = "/assets/icons/bm_icon.png";
             break
           case "3":
-            this.searchIcon = "chrome://favicon/size/8@2x/https://www.baidu.com";
+            this.searchIcon = utils.getFaviconUrl("https://www.baidu.com", 16);
             break
         }
         await storage.setUOptions({'searchRadio':this.searchRadio}) 

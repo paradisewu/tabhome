@@ -22,7 +22,7 @@
               <draggable :list="folder.children" :animation="350" :fallbackTolerance="1" group="unsort" @change="draggableLog">
                 <div class="link" style="width: inherit" v-for="(tab, tabIndex) in folder.children" :key="tabIndex">
                   <div class="link-title" @click.prevent="openBookmarkAndRemove(tab.url,tab.id)">
-                    <img :src="'chrome://favicon/size/16@2x/'+tab.url">
+                    <img :src="faviconUrl(tab.url)">
                     <a :href="tab.url" target="_blank">{{tab.title}}</a>
                   </div>
                   <i class="el-icon-close" @click="removeBookmark(tab.id)"></i>
@@ -63,7 +63,7 @@
                       <el-col :span="6" v-for="(tab, tabIndex) in folder.children" :key="tabIndex">
                         <div class="link">
                           <div class="link-title" @click.prevent="openBookmark(tab.url,tab.id)">
-                            <img :src="'chrome://favicon/size/16@2x/'+tab.url">
+                            <img :src="faviconUrl(tab.url)">
                             <a :href="tab.url" target="_blank">{{tab.title}}</a>
                           </div>
                           <i class="el-icon-close" @click="removeBookmark(tab.id)"></i>
@@ -86,6 +86,7 @@
   import draggable from 'vuedraggable'
   import tabs from "@/common/onetab/tabs";
   import storage from "@/common/onetab/storage";
+  import utils from "@/common/util/utils";
   import __ from "@/common/util/i18n";
   import browser from 'webextension-polyfill'
 
@@ -132,6 +133,8 @@
     },
     methods: {
       __,
+      /*MV3: chrome://favicon 已移除, 改用 _favicon API*/
+      faviconUrl: url => utils.getFaviconUrl(url, 32),
       /*1 draggable*/
       /*added:newIndex,element*/
       /*removed:oldIndex,element*/

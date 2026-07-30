@@ -18,6 +18,8 @@ module.exports = {
   output: {
     path: resolve('dist'),
     filename : '[name].js',
+    /*MV3: background 运行在 service worker, 不能引用 window*/
+    globalObject: 'this',
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -56,7 +58,8 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {
-      'vue$': 'vue/dist/vue.esm.js',
+      /*MV3 CSP 禁止 unsafe-eval, 使用不含模板编译器的 runtime 版*/
+      'vue$': 'vue/dist/vue.runtime.esm.js',
       '@': resolve('src'),
     }
   },
@@ -83,7 +86,11 @@ module.exports = {
         use: [
           'vue-style-loader',
           'css-loader',
-          'sass-loader'
+          {
+            loader: 'sass-loader',
+            /*node-sass 已移除(新版 Node 无法编译), 改用 dart-sass*/
+            options: { implementation: require('sass') },
+          }
         ]
       },
       {

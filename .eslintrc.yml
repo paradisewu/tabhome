@@ -13,4 +13,4 @@ rules:
 globals:
   DEBUG: true
   PRODUCTION: true
-  ga: true
+  globalThis: true
