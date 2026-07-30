@@ -1,0 +1,157 @@
+{
+
+  "ext_name": {
+    "message": "TabHome"
+  },
+  "ext_desc": {
+    "message": "Process Chrome\"Other Folders\" bookmarks. There are functions such as storing \"temporary\" bookmarks, saving bookmarks in categories, shortcut key operations, custom settings, quick viewing of bookmarks, support for direct search of bookmarks in the search bar, and efficient management of bookmarks. View the browsing history of the current website and manage the installed extensions."
+  },
+
+  "ext_introduce": {
+    "message": "The plug-in is completely open source, the open source address is https://github.com/Yinbe/bookmark. Welcome to discuss bugs, discuss features, Star Project"
+  },
+
+  "opt_desc_browserAction": {
+    "message": "Behavior when icon is clicked"
+  },
+  "menu_show_list": {
+    "message": "Display list"
+  },
+  "menu_store_left_tabs": {
+    "message": "Save the tab on the left"
+  },
+  "menu_store_right_tabs": {
+    "message": "Save the tab on the right"
+  },
+  "menu_store_selected_tabs": {
+    "message": "Save selected tabs"
+  },
+  "menu_store_twoside_tabs": {
+    "message": "Save unchecked tabs"
+  },
+  "menu_store_all_tabs": {
+    "message": "Save all tabs"
+  },
+  "menu_store_all_in_all_windows": {
+    "message": "Store all tabs for all windows"
+  },
+  "menu_show_history_in_this_windows": {
+    "message": "View the history of the current website"
+  },
+
+  "opt_desc_addHistory": {
+    "message": "Add saved tabs to your browser history"
+  },
+  "opt_desc_ignorePinned": {
+    "message": "Do not store pinned tabs"
+  },
+  "opt_desc_open_in_new_window": {
+    "message": "Open in new window"
+  },
+
+  "ui_options_behaviour": {
+    "message": "Setting"
+  },
+
+  "ui_menu_item_home": {
+    "message": "Home"
+  },
+
+  "ui_menu_item_bookmark": {
+    "message": "Bookmark"
+  },
+  
+  "ui_menu_item_extension": {
+    "message": "Extension"
+  },
+  
+  "ui_menu_item_options": {
+    "message": "Setting"
+  },
+
+  "ui_menu_item_about": {
+    "message": "About"
+  },
+  
+  "ui_about_view_about": {
+    "message": "Click to view the instructions"
+  },
+
+  "ui_extension_view_search_placeholder": {
+    "message": "Please enter filter content"
+  },
+
+  "ui_home_view_search_button": {
+    "message": "Search"
+  },
+
+  "ui_home_view_search_title": {
+    "message": "Search content"
+  },
+
+  "ui_home_view_search_all": {
+    "message": "All"
+  },
+
+  "ui_home_view_search_home": {
+    "message": "Current"
+  },
+
+  "ui_home_view_search_baidu": {
+    "message": "Baidu Search"
+  },
+
+  "ui_home_view_tab_recovery": {
+    "message": "Recovery List"
+  },
+
+  "ui_home_view_tab_delete": {
+    "message": "Delete List"
+  },
+
+  "ui_home_view_tab_title": {
+    "message": "Please set the title"
+  },
+
+  "ui_bookmark_view_tab_move": {
+    "message": "Move to home page"
+  },
+
+  "ui_bookmark_view_tab_move_right": {
+    "message": "Move to right page"
+  },
+
+  "ui_setting_view_bookmark": {
+    "message": "Bookmark"
+  },
+
+  "ui_setting_view_bookmark_show": {
+    "message": "Display label"
+  },
+
+  "ui_setting_view_bookmark_hide": {
+    "message": "Hide label"
+  },
+
+  "ui_setting_view_history": {
+    "message": "Historical records"
+  },
+
+  "ui_setting_view_history_time": {
+    "message": "From current time"
+  },
+
+  "ui_setting_view_history_day": {
+    "message": "days"
+  },
+
+  "ui_setting_view_history_count": {
+    "message": "Displays the number of records"
+  },
+
+  "ui_setting_view_history_num": {
+    "message": "records"
+  }
+
+
+}

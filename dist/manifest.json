@@ -1,0 +1,69 @@
+{
+  "manifest_version": 3,
+  "minimum_chrome_version": "104",
+  "name": "__MSG_ext_name__",
+  "version": "1.5.22.214",
+  "default_locale": "zh_CN",
+  "description": "__MSG_ext_desc__",
+  "author": "Yinbe <zyb0you@gmail.com>",
+  "icons": {
+    "16": "assets/icons/icon_16.png",
+    "48": "assets/icons/icon_48.png",
+    "128": "assets/icons/icon_128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "menu_show_list": {
+      "description": "__MSG_menu_show_list__",
+      "global": true
+    },
+    "menu_store_left_tabs": {
+      "description": "__MSG_menu_store_left_tabs__",
+      "global": true
+    },
+    "menu_store_right_tabs": {
+      "description": "__MSG_menu_store_right_tabs__",
+      "global": true
+    },
+    "menu_store_selected_tabs": {
+      "description": "__MSG_menu_store_selected_tabs__",
+      "global": true
+    },
+    "menu_store_twoside_tabs": {
+      "description": "__MSG_menu_store_twoside_tabs__",
+      "global": true
+    },
+    "menu_store_all_tabs": {
+      "description": "__MSG_menu_store_all_tabs__",
+      "global": true
+    },
+    "menu_store_all_in_all_windows": {
+      "description": "__MSG_menu_store_all_in_all_windows__",
+      "global": true
+    },
+    "menu_show_history_in_this_windows": {
+      "description": "__MSG_menu_show_history_in_this_windows__",
+      "global": true
+    }
+  },
+  "action": {
+  },
+  "omnibox": { "keyword" : "th" },
+  "permissions": [
+    "favicon",
+    "bookmarks",
+    "contextMenus",
+    "storage",
+    "tabs",
+    "history",
+    "management"
+  ],
+  "homepage_url": "https://yinbe.github.io/TabHome",
+  "offline_enabled": true,
+  "options_ui": {
+    "page": "index.html#/view/options",
+    "open_in_tab": true
+  }
+}
